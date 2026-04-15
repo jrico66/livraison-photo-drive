@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Livraison">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#185FA5">
+  <title>Réception Livraison</title>
+  <script src="https://unpkg.com/@azure/msal-browser@3.7.1/lib/msal-browser.min.js"></script>
+  <style>
+    :root {
+      --blue: #185FA5;
+      --blue-light: #e6f1fb;
+      --blue-text: #0c447c;
+      --green: #3B6D11;
+      --green-light: #eaf3de;
+      --gray-bg: #f5f5f3;
+      --gray-card: #ffffff;
+      --gray-border: rgba(0,0,0,0.12);
+      --gray-border2: rgba(0,0,0,0.22);
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-hint: #888780;
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --gray-bg: #1a1a18;
+        --gray-card: #2c2c2a;
+        --gray-border: rgba(255,255,255,0.12);
+        --gray-border2: rgba(255,255,255,0.22);
+        --text-primary: #f0efe8;
+        --text-secondary: #b4b2a9;
+        --text-hint: #888780;
+        --blue-light: #0c447c;
+        --blue-text: #85b7eb;
+        --green-light: #27500a;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; background: var(--gray-bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text-primary); }
+    .app { max-width: 500px; margin: 0 auto; padding: 16px 16px 32px; }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-top: 8px; }
+    .header-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .header h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+    .header p { font-size: 13px; color: var(--text-secondary); margin-top: 1px; }
+    .card { background: var(--gray-card); border: 0.5px solid var(--gray-border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
+    .section-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .auth-btn { width: 100%; padding: 13px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--blue); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; }
+    .auth-btn:active { opacity: 0.8; }
+    .connected-row { display: flex; align-items: center; gap: 8px; }
+    .dot-green { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .connected-text { font-size: 14px; color: var(--green); font-weight: 500; }
+    .user-name { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+    .lot-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
+    .lot-box { flex: 1; background: var(--blue-light); border-radius: var(--radius); padding: 8px 12px; }
+    .lot-box-label { font-size: 10px; color: var(--blue-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .lot-box-value { font-size: 14px; font-weight: 600; color: var(--blue-text); margin-top: 2px; }
+    .date-box { background: var(--gray-bg); border-radius: var(--radius); padding: 8px 12px; }
+    .date-box-label { font-size: 10px; color: var(--text-hint); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .date-box-value { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
+    .regen-btn { padding: 0 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: transparent; cursor: pointer; font-size: 18px; color: var(--text-secondary); display: flex; align-items: center; }
+    select { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--gray-bg); color: var(--text-primary); font-size: 15px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; margin-bottom: 10px; }
+    .folder-preview { background: var(--gray-bg); border-radius: var(--radius); padding: 8px 12px; font-size: 12px; font-family: 'SF Mono', 'Courier New', monospace; color: var(--text-secondary); word-break: break-all; line-height: 1.5; }
+    textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--gray-bg); color: var(--text-primary); font-size: 14px; resize: none; font-family: inherit; margin-top: 10px; }
+    textarea::placeholder { color: var(--text-hint); }
+    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tag { font-size: 13px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--gray-border2); cursor: pointer; color: var(--text-secondary); background: transparent; font-family: inherit; }
+    .tag.active { background: var(--blue); color: #fff; border-color: transparent; }
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .photo-thumb { aspect-ratio: 1; border-radius: var(--radius); border: 0.5px solid var(--gray-border); overflow: hidden; position: relative; background: var(--gray-bg); }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .del-btn { position: absolute; top: 5px; right: 5px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; border: none; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .type-tag { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 6px; }
+    .add-btn { aspect-ratio: 1; border-radius: var(--radius); border: 1.5px dashed var(--gray-border2); background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: var(--text-hint); font-size: 11px; font-family: inherit; }
+    .photos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .photo-counter { font-size: 12px; color: var(--text-secondary); background: var(--gray-bg); padding: 3px 10px; border-radius: 20px; }
+    .send-btn { width: 100%; padding: 16px; border-radius: var(--radius-lg); border: none; background: var(--blue); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; font-family: inherit; }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .send-btn.success { background: var(--green); }
+    .progress-bar { height: 4px; border-radius: 2px; background: var(--gray-border); overflow: hidden; margin-top: 10px; }
+    .progress-fill { height: 100%; border-radius: 2px; background: var(--blue); transition: width 0.3s ease; }
+    .log { font-size: 12px; color: var(--text-secondary); margin-top: 7px; min-height: 16px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M12.5 8.5C13.8 5.5 17 4 19.5 5.5C21.8 7 22.5 10 21 12L19 15H14L12.5 8.5Z" fill="white"/>
+        <path d="M6 15L4 12C2.5 9 4 6 7 5.5C9 5.2 11 6.5 11.5 8.5L13.5 15H6Z" fill="white" opacity="0.8"/>
+        <path d="M5 15H19L18 19H6L5 15Z" fill="white" opacity="0.6"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Réception livraison</h1>
+      <p>Photos → OneDrive automatique</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Connexion Microsoft 365</div>
+    <div id="authSection">
+      <button class="auth-btn" onclick="connectMicrosoft()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="2" width="9" height="9" fill="white"/>
+          <rect x="13" y="2" width="9" height="9" fill="white" opacity="0.8"/>
+          <rect x="2" y="13" width="9" height="9" fill="white" opacity="0.8"/>
+          <rect x="13" y="13" width="9" height="9" fill="white"/>
+        </svg>
+        Se connecter avec Microsoft 365
+      </button>
+    </div>
+    <div id="connectedInfo" style="display:none;">
+      <div class="connected-row">
+        <div class="dot-green"></div>
+        <span class="connected-text">Connecté à Microsoft 365</span>
+      </div>
+      <div class="user-name" id="userName"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Livraison</div>
+    <div class="lot-row">
+      <div class="lot-box">
+        <div class="lot-box-label">Numéro de lot</div>
+        <div class="lot-box-value" id="lotNum">LOT-2026-001</div>
+      </div>
+      <div class="date-box">
+        <div class="date-box-label">Date</div>
+        <div class="date-box-value" id="dateBadge">--</div>
+      </div>
+      <button class="regen-btn" onclick="regenLot()">↻</button>
+    </div>
+
+    <div class="section-label">Fournisseur</div>
+    <select id="fournisseur" onchange="updateUI()">
+      <option value="">— Sélectionner —</option>
+      <option value="Pro a Pro">Pro à Pro</option>
+      <option value="Ganivaud">Ganivaud</option>
+      <option value="Camblong">Camblong</option>
+      <option value="Episaveur">Episaveur</option>
+      <option value="Sysco">Sysco</option>
+      <option value="Sobraques">Sobraques</option>
+      <option value="France Frais">France Frais</option>
+    </select>
+
+    <div class="section-label" style="margin-top:4px;">Dossier OneDrive</div>
+    <div class="folder-preview" id="folderPreview">Livraisons / 2026-04-15 — LOT-2026-001</div>
+
+    <textarea id="notes" rows="2" placeholder="Notes : palette abîmée, colis manquant, température…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="photos-header">
+      <div class="section-label" style="margin-bottom:0;">Photos</div>
+      <span class="photo-counter" id="photoCounter">0 photo</span>
+    </div>
+    <div class="section-label">Type de document</div>
+    <div class="tag-row">
+      <button class="tag active" onclick="selectTag(this,'BL')">BL</button>
+      <button class="tag" onclick="selectTag(this,'Etiquette')">Étiquette</button>
+      <button class="tag" onclick="selectTag(this,'Carton')">Carton</button>
+      <button class="tag" onclick="selectTag(this,'Palette')">Palette</button>
+      <button class="tag" onclick="selectTag(this,'Dommage')">Dommage</button>
+    </div>
+    <div class="photo-grid" id="photoGrid"></div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" multiple style="display:none" onchange="addPhotos(event)">
+  </div>
+
+  <button class="send-btn" id="sendBtn" onclick="sendToOneDrive()" disabled>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Envoyer sur OneDrive
+  </button>
+
+  <div id="progressWrap" style="display:none;">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="log" id="logMsg"></div>
+  </div>
+
+</div>
+
+<script>
+  const msalConfig = {
+    auth: {
+      clientId: '14d82eec-204b-4c2f-b7e8-296a70dab67e', // Microsoft Graph Explorer client ID (public)
+      authority: 'https://login.microsoftonline.com/common',
+      redirectUri: 'https://jrico66.github.io/livraison-photos/'
+    },
+    cache: { cacheLocation: 'sessionStorage' }
+  };
+
+  const msalInstance = new msal.PublicClientApplication(msalConfig);
+  const scopes = ['Files.ReadWrite', 'User.Read'];
+
+  let accessToken = null;
+  let photos = [];
+  let currentTag = 'BL';
+  let lotNumber = '';
+  let sending = false;
+
+  async function connectMicrosoft() {
+    try {
+      const result = await msalInstance.loginPopup({ scopes });
+      accessToken = result.accessToken;
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('connectedInfo').style.display = 'block';
+      document.getElementById('userName').textContent = result.account.username;
+      updateSendBtn();
+      setLog('Connecté — prêt à envoyer');
+      document.getElementById('progressWrap').style.display = 'block';
+    } catch(e) {
+      setLog('Erreur connexion : ' + e.message);
+    }
+  }
+
+  async function getToken() {
+    const accounts = msalInstance.getAllAccounts();
+    if (accounts.length === 0) return null;
+    try {
+      const result = await msalInstance.acquireTokenSilent({ scopes, account: accounts[0] });
+      return result.accessToken;
+    } catch(e) {
+      const result = await msalInstance.acquireTokenPopup({ scopes });
+      return result.accessToken;
+    }
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function getTodayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+  function genLot() {
+    const seq = String(Math.floor(Math.random()*999)+1).padStart(3,'0');
+    return `LOT-${new Date().getFullYear()}-${seq}`;
+  }
+  function updateUI() {
+    const today = getTodayStr();
+    document.getElementById('dateBadge').textContent = today;
+    document.getElementById('lotNum').textContent = lotNumber;
+    const f = document.getElementById('fournisseur').value;
+    document.getElementById('folderPreview').textContent = `Livraisons / ${today} — ${lotNumber}${f ? ' — '+f : ''}`;
+  }
+  function regenLot() { lotNumber = genLot(); updateUI(); }
+  function selectTag(btn, tag) {
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    currentTag = tag;
+  }
+  function addPhotos(e) {
+    Array.from(e.target.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => { photos.push({ data: ev.target.result, file, tag: currentTag }); renderPhotos(); };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  }
+  function removePhoto(i) { photos.splice(i,1); renderPhotos(); }
+  function renderPhotos() {
+    const grid = document.getElementById('photoGrid');
+    grid.innerHTML = '';
+    photos.forEach((p,i) => {
+      const div = document.createElement('div');
+      div.className = 'photo-thumb';
+      div.innerHTML = `<img src="${p.data}"><button class="del-btn" onclick="removePhoto(${i})">✕</button><span class="type-tag">${p.tag}</span>`;
+      grid.appendChild(div);
+    });
+    const btn = document.createElement('button');
+    btn.className = 'add-btn';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><circle cx="12" cy="12" r="3.5"/><path d="M3 9h2.5l2-3h9l2 3H21a1 1 0 011 1v9a1 1 0 01-1 1H3a1 1 0 01-1-1V10a1 1 0 011-1z"/></svg><span>Ajouter</span>`;
+    btn.onclick = () => document.getElementById('fileInput').click();
+    grid.appendChild(btn);
+    const c = photos.length;
+    document.getElementById('photoCounter').textContent = c === 0 ? '0 photo' : c === 1 ? '1 photo' : `${c} photos`;
+    updateSendBtn();
+  }
+  function updateSendBtn() {
+    document.getElementById('sendBtn').disabled = !accessToken || photos.length === 0 || sending;
+  }
+  function setLog(msg) { document.getElementById('logMsg').textContent = msg; }
+  function setProgress(pct) { document.getElementById('progressFill').style.width = pct+'%'; }
+
+  async function ensureFolder(folderPath) {
+    const token = await getToken();
+    const parts = folderPath.split('/').map(s=>s.trim()).filter(Boolean);
+    let parentId = 'root';
+    for (const part of parts) {
+      const res = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/${parentId==='root'?'root':`items/${parentId}`}/children?$filter=name eq '${encodeURIComponent(part)}'&$select=id,name`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      if (data.value && data.value.length > 0) { parentId = data.value[0].id; }
+      else {
+        const cr = await fetch(
+          `https://graph.microsoft.com/v1.0/me/drive/${parentId==='root'?'root':`items/${parentId}`}/children`,
+          { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},
+            body: JSON.stringify({name:part, folder:{}, '@microsoft.graph.conflictBehavior':'rename'}) }
+        );
+        const c = await cr.json(); parentId = c.id;
+      }
+    }
+    return { folderId: parentId, token };
+  }
+
+  function dataURLtoBlob(dataURL) {
+    const [h,d] = dataURL.split(',');
+    const mime = h.match(/:(.*?);/)[1];
+    const bin = atob(d); const arr = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    return new Blob([arr],{type:mime});
+  }
+
+  async function sendToOneDrive() {
+    sending = true; updateSendBtn();
+    document.getElementById('progressWrap').style.display = 'block';
+    setProgress(0);
+    const today = getTodayStr();
+    const f = document.getElementById('fournisseur').value;
+    const folderPath = `Livraisons/${today} — ${lotNumber}${f?' — '+f:''}`;
+    try {
+      setLog('Création du dossier OneDrive...');
+      const { folderId, token } = await ensureFolder(folderPath);
+      setProgress(15);
+      const notes = document.getElementById('notes').value.trim();
+      if (notes) {
+        const txt = `Date: ${today}\nLot: ${lotNumber}\nFournisseur: ${f||'-'}\nNotes: ${notes}\n`;
+        await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${folderId}:/infos.txt:/content`,
+          {method:'PUT', headers:{Authorization:`Bearer ${token}`,'Content-Type':'text/plain; charset=utf-8'}, body:txt});
+      }
+      setProgress(25);
+      const tagCounts = {};
+      for (let i=0;i<photos.length;i++) {
+        const p = photos[i];
+        tagCounts[p.tag] = (tagCounts[p.tag]||0)+1;
+        const ext = (p.file.name.split('.').pop()||'jpg').toLowerCase();
+        const fname = `${p.tag}_${String(tagCounts[p.tag]).padStart(2,'0')}.${ext}`;
+        const blob = dataURLtoBlob(p.data);
+        await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${folderId}:/${fname}:/content`,
+          {method:'PUT', headers:{Authorization:`Bearer ${token}`,'Content-Type':blob.type}, body:blob});
+        setProgress(25+Math.round(75*(i+1)/photos.length));
+        setLog(`Envoi ${i+1}/${photos.length} — ${fname}`);
+      }
+      setProgress(100);
+      setLog(`✓ ${photos.length} photo${photos.length>1?'s':''} envoyée${photos.length>1?'s':''} dans "${folderPath}"`);
+      document.getElementById('sendBtn').classList.add('success');
+      document.getElementById('sendBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="white" opacity="0.25"/><path d="M7 12l4 4 6-6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Envoyé !';
+      photos = []; renderPhotos();
+      setTimeout(() => {
+        document.getElementById('sendBtn').classList.remove('success');
+        document.getElementById('sendBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Envoyer sur OneDrive';
+        regenLot(); sending=false; updateSendBtn();
+      }, 4000);
+    } catch(err) {
+      setLog('❌ Erreur : ' + err.message);
+      sending=false; updateSendBtn();
+    }
+  }
+
+  lotNumber = genLot();
+  updateUI();
+  renderPhotos();
+</script>
+</body>
+</html>

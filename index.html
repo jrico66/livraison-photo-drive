@@ -9,51 +9,35 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#185FA5">
   <title>Réception Livraison</title>
-  <script src="https://unpkg.com/@azure/msal-browser@3.7.1/lib/msal-browser.min.js"></script>
   <style>
     :root {
-      --blue: #185FA5;
-      --blue-light: #e6f1fb;
-      --blue-text: #0c447c;
-      --green: #3B6D11;
-      --green-light: #eaf3de;
-      --gray-bg: #f5f5f3;
-      --gray-card: #ffffff;
-      --gray-border: rgba(0,0,0,0.12);
-      --gray-border2: rgba(0,0,0,0.22);
-      --text-primary: #1a1a18;
-      --text-secondary: #5f5e5a;
-      --text-hint: #888780;
-      --radius: 10px;
-      --radius-lg: 14px;
+      --blue: #185FA5; --blue-light: #e6f1fb; --blue-text: #0c447c;
+      --green: #3B6D11; --gray-bg: #f5f5f3; --gray-card: #ffffff;
+      --gray-border: rgba(0,0,0,0.12); --gray-border2: rgba(0,0,0,0.22);
+      --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-hint: #888780;
+      --radius: 10px; --radius-lg: 14px;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --gray-bg: #1a1a18;
-        --gray-card: #2c2c2a;
-        --gray-border: rgba(255,255,255,0.12);
-        --gray-border2: rgba(255,255,255,0.22);
-        --text-primary: #f0efe8;
-        --text-secondary: #b4b2a9;
-        --text-hint: #888780;
-        --blue-light: #0c447c;
-        --blue-text: #85b7eb;
-        --green-light: #27500a;
+        --gray-bg: #1a1a18; --gray-card: #2c2c2a;
+        --gray-border: rgba(255,255,255,0.12); --gray-border2: rgba(255,255,255,0.22);
+        --text-primary: #f0efe8; --text-secondary: #b4b2a9; --text-hint: #888780;
+        --blue-light: #0c447c; --blue-text: #85b7eb;
       }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; background: var(--gray-bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text-primary); }
+    html, body { background: var(--gray-bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text-primary); }
     .app { max-width: 500px; margin: 0 auto; padding: 16px 16px 32px; }
     .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-top: 8px; }
     .header-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .header h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+    .header h1 { font-size: 20px; font-weight: 600; }
     .header p { font-size: 13px; color: var(--text-secondary); margin-top: 1px; }
     .card { background: var(--gray-card); border: 0.5px solid var(--gray-border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
     .section-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
-    .auth-btn { width: 100%; padding: 13px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--blue); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; }
+    .auth-btn { width: 100%; padding: 13px; border-radius: var(--radius); border: none; background: var(--blue); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; }
     .auth-btn:active { opacity: 0.8; }
     .connected-row { display: flex; align-items: center; gap: 8px; }
-    .dot-green { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .dot-green { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
     .connected-text { font-size: 14px; color: var(--green); font-weight: 500; }
     .user-name { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
     .lot-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
@@ -65,7 +49,7 @@
     .date-box-value { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
     .regen-btn { padding: 0 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: transparent; cursor: pointer; font-size: 18px; color: var(--text-secondary); display: flex; align-items: center; }
     select { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--gray-bg); color: var(--text-primary); font-size: 15px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; margin-bottom: 10px; }
-    .folder-preview { background: var(--gray-bg); border-radius: var(--radius); padding: 8px 12px; font-size: 12px; font-family: 'SF Mono', 'Courier New', monospace; color: var(--text-secondary); word-break: break-all; line-height: 1.5; }
+    .folder-preview { background: var(--gray-bg); border-radius: var(--radius); padding: 8px 12px; font-size: 12px; font-family: monospace; color: var(--text-secondary); word-break: break-all; }
     textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--gray-bg); color: var(--text-primary); font-size: 14px; resize: none; font-family: inherit; margin-top: 10px; }
     textarea::placeholder { color: var(--text-hint); }
     .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -83,13 +67,12 @@
     .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .send-btn.success { background: var(--green); }
     .progress-bar { height: 4px; border-radius: 2px; background: var(--gray-border); overflow: hidden; margin-top: 10px; }
-    .progress-fill { height: 100%; border-radius: 2px; background: var(--blue); transition: width 0.3s ease; }
+    .progress-fill { height: 100%; border-radius: 2px; background: var(--blue); transition: width 0.3s; }
     .log { font-size: 12px; color: var(--text-secondary); margin-top: 7px; min-height: 16px; line-height: 1.4; }
   </style>
 </head>
 <body>
 <div class="app">
-
   <div class="header">
     <div class="header-icon">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -108,11 +91,11 @@
     <div class="section-label">Connexion Microsoft 365</div>
     <div id="authSection">
       <button class="auth-btn" onclick="connectMicrosoft()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="9" height="9" fill="white"/>
-          <rect x="13" y="2" width="9" height="9" fill="white" opacity="0.8"/>
-          <rect x="2" y="13" width="9" height="9" fill="white" opacity="0.8"/>
-          <rect x="13" y="13" width="9" height="9" fill="white"/>
+        <svg width="20" height="20" viewBox="0 0 21 21" fill="none">
+          <rect x="1" y="1" width="9" height="9" fill="white"/>
+          <rect x="11" y="1" width="9" height="9" fill="white" opacity="0.8"/>
+          <rect x="1" y="11" width="9" height="9" fill="white" opacity="0.8"/>
+          <rect x="11" y="11" width="9" height="9" fill="white"/>
         </svg>
         Se connecter avec Microsoft 365
       </button>
@@ -120,7 +103,7 @@
     <div id="connectedInfo" style="display:none;">
       <div class="connected-row">
         <div class="dot-green"></div>
-        <span class="connected-text">Connecté à Microsoft 365</span>
+        <span class="connected-text">Connecté</span>
       </div>
       <div class="user-name" id="userName"></div>
     </div>
@@ -139,7 +122,6 @@
       </div>
       <button class="regen-btn" onclick="regenLot()">↻</button>
     </div>
-
     <div class="section-label">Fournisseur</div>
     <select id="fournisseur" onchange="updateUI()">
       <option value="">— Sélectionner —</option>
@@ -151,10 +133,8 @@
       <option value="Sobraques">Sobraques</option>
       <option value="France Frais">France Frais</option>
     </select>
-
     <div class="section-label" style="margin-top:4px;">Dossier OneDrive</div>
     <div class="folder-preview" id="folderPreview">Livraisons / 2026-04-15 — LOT-2026-001</div>
-
     <textarea id="notes" rows="2" placeholder="Notes : palette abîmée, colis manquant, température…"></textarea>
   </div>
 
@@ -182,26 +162,18 @@
     </svg>
     Envoyer sur OneDrive
   </button>
-
   <div id="progressWrap" style="display:none;">
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div class="log" id="logMsg"></div>
   </div>
-
 </div>
 
 <script>
-  const msalConfig = {
-    auth: {
-      clientId: '14d82eec-204b-4c2f-b7e8-296a70dab67e', // Microsoft Graph Explorer client ID (public)
-      authority: 'https://login.microsoftonline.com/common',
-      redirectUri: 'https://jrico66.github.io/livraison-photos/'
-    },
-    cache: { cacheLocation: 'sessionStorage' }
-  };
-
-  const msalInstance = new msal.PublicClientApplication(msalConfig);
-  const scopes = ['Files.ReadWrite', 'User.Read'];
+  // Config OAuth — redirection (pas de popup)
+  const CLIENT_ID = '14d82eec-204b-4c2f-b7e8-296a70dab67e';
+  const REDIRECT_URI = 'https://jrico66.github.io/livraison-photo-drive/';
+  const SCOPES = 'Files.ReadWrite User.Read';
+  const AUTH_URL = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&response_mode=fragment`;
 
   let accessToken = null;
   let photos = [];
@@ -209,48 +181,68 @@
   let lotNumber = '';
   let sending = false;
 
-  async function connectMicrosoft() {
-    try {
-      const result = await msalInstance.loginPopup({ scopes });
-      accessToken = result.accessToken;
-      document.getElementById('authSection').style.display = 'none';
-      document.getElementById('connectedInfo').style.display = 'block';
-      document.getElementById('userName').textContent = result.account.username;
-      updateSendBtn();
-      setLog('Connecté — prêt à envoyer');
-      document.getElementById('progressWrap').style.display = 'block';
-    } catch(e) {
-      setLog('Erreur connexion : ' + e.message);
-    }
+  // Sauvegarde état avant redirect
+  function saveState() {
+    const state = {
+      photos: photos.map(p => ({ data: p.data, tag: p.tag, name: p.file ? p.file.name : 'photo.jpg' })),
+      lot: lotNumber,
+      fournisseur: document.getElementById('fournisseur').value,
+      notes: document.getElementById('notes').value
+    };
+    sessionStorage.setItem('livraison_state', JSON.stringify(state));
   }
 
-  async function getToken() {
-    const accounts = msalInstance.getAllAccounts();
-    if (accounts.length === 0) return null;
+  function restoreState() {
+    const saved = sessionStorage.getItem('livraison_state');
+    if (!saved) return;
     try {
-      const result = await msalInstance.acquireTokenSilent({ scopes, account: accounts[0] });
-      return result.accessToken;
-    } catch(e) {
-      const result = await msalInstance.acquireTokenPopup({ scopes });
-      return result.accessToken;
-    }
+      const state = JSON.parse(saved);
+      lotNumber = state.lot || genLot();
+      setTimeout(() => {
+        document.getElementById('fournisseur').value = state.fournisseur || '';
+        document.getElementById('notes').value = state.notes || '';
+        photos = (state.photos || []).map(p => ({ data: p.data, tag: p.tag, file: { name: p.name } }));
+        updateUI();
+        renderPhotos();
+      }, 100);
+      sessionStorage.removeItem('livraison_state');
+    } catch(e) {}
   }
 
-  function pad(n) { return String(n).padStart(2, '0'); }
+  function connectMicrosoft() {
+    saveState();
+    window.location.href = AUTH_URL;
+  }
+
+  function onConnected(token) {
+    accessToken = token;
+    document.getElementById('authSection').style.display = 'none';
+    document.getElementById('connectedInfo').style.display = 'block';
+    document.getElementById('progressWrap').style.display = 'block';
+    // Récupère le nom de l'utilisateur
+    fetch('https://graph.microsoft.com/v1.0/me?$select=displayName,mail', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(r => r.json()).then(data => {
+      document.getElementById('userName').textContent = data.mail || data.displayName || '';
+    }).catch(() => {});
+    updateSendBtn();
+    setLog('Connecté — prêt à envoyer');
+  }
+
+  function pad(n) { return String(n).padStart(2,'0'); }
   function getTodayStr() {
     const d = new Date();
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   }
   function genLot() {
-    const seq = String(Math.floor(Math.random()*999)+1).padStart(3,'0');
-    return `LOT-${new Date().getFullYear()}-${seq}`;
+    return `LOT-${new Date().getFullYear()}-${String(Math.floor(Math.random()*999)+1).padStart(3,'0')}`;
   }
   function updateUI() {
     const today = getTodayStr();
     document.getElementById('dateBadge').textContent = today;
     document.getElementById('lotNum').textContent = lotNumber;
     const f = document.getElementById('fournisseur').value;
-    document.getElementById('folderPreview').textContent = `Livraisons / ${today} — ${lotNumber}${f ? ' — '+f : ''}`;
+    document.getElementById('folderPreview').textContent = `Livraisons / ${today} — ${lotNumber}${f?' — '+f:''}`;
   }
   function regenLot() { lotNumber = genLot(); updateUI(); }
   function selectTag(btn, tag) {
@@ -292,26 +284,25 @@
   function setProgress(pct) { document.getElementById('progressFill').style.width = pct+'%'; }
 
   async function ensureFolder(folderPath) {
-    const token = await getToken();
     const parts = folderPath.split('/').map(s=>s.trim()).filter(Boolean);
     let parentId = 'root';
     for (const part of parts) {
       const res = await fetch(
         `https://graph.microsoft.com/v1.0/me/drive/${parentId==='root'?'root':`items/${parentId}`}/children?$filter=name eq '${encodeURIComponent(part)}'&$select=id,name`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       const data = await res.json();
       if (data.value && data.value.length > 0) { parentId = data.value[0].id; }
       else {
         const cr = await fetch(
           `https://graph.microsoft.com/v1.0/me/drive/${parentId==='root'?'root':`items/${parentId}`}/children`,
-          { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},
+          { method:'POST', headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},
             body: JSON.stringify({name:part, folder:{}, '@microsoft.graph.conflictBehavior':'rename'}) }
         );
         const c = await cr.json(); parentId = c.id;
       }
     }
-    return { folderId: parentId, token };
+    return parentId;
   }
 
   function dataURLtoBlob(dataURL) {
@@ -331,13 +322,13 @@
     const folderPath = `Livraisons/${today} — ${lotNumber}${f?' — '+f:''}`;
     try {
       setLog('Création du dossier OneDrive...');
-      const { folderId, token } = await ensureFolder(folderPath);
+      const folderId = await ensureFolder(folderPath);
       setProgress(15);
       const notes = document.getElementById('notes').value.trim();
       if (notes) {
         const txt = `Date: ${today}\nLot: ${lotNumber}\nFournisseur: ${f||'-'}\nNotes: ${notes}\n`;
         await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${folderId}:/infos.txt:/content`,
-          {method:'PUT', headers:{Authorization:`Bearer ${token}`,'Content-Type':'text/plain; charset=utf-8'}, body:txt});
+          {method:'PUT', headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'text/plain; charset=utf-8'}, body:txt});
       }
       setProgress(25);
       const tagCounts = {};
@@ -348,14 +339,14 @@
         const fname = `${p.tag}_${String(tagCounts[p.tag]).padStart(2,'0')}.${ext}`;
         const blob = dataURLtoBlob(p.data);
         await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${folderId}:/${fname}:/content`,
-          {method:'PUT', headers:{Authorization:`Bearer ${token}`,'Content-Type':blob.type}, body:blob});
+          {method:'PUT', headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':blob.type}, body:blob});
         setProgress(25+Math.round(75*(i+1)/photos.length));
         setLog(`Envoi ${i+1}/${photos.length} — ${fname}`);
       }
       setProgress(100);
       setLog(`✓ ${photos.length} photo${photos.length>1?'s':''} envoyée${photos.length>1?'s':''} dans "${folderPath}"`);
       document.getElementById('sendBtn').classList.add('success');
-      document.getElementById('sendBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="white" opacity="0.25"/><path d="M7 12l4 4 6-6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Envoyé !';
+      document.getElementById('sendBtn').innerHTML = '✓ Envoyé !';
       photos = []; renderPhotos();
       setTimeout(() => {
         document.getElementById('sendBtn').classList.remove('success');
@@ -368,9 +359,25 @@
     }
   }
 
-  lotNumber = genLot();
-  updateUI();
-  renderPhotos();
+  // Récupère le token depuis l'URL après redirect OAuth
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.substring(1));
+    const token = params.get('access_token');
+    if (token) {
+      history.replaceState(null, '', window.location.pathname);
+      lotNumber = genLot();
+      updateUI();
+      renderPhotos();
+      restoreState();
+      onConnected(token);
+    }
+  } else {
+    lotNumber = genLot();
+    updateUI();
+    renderPhotos();
+    restoreState();
+  }
 </script>
 </body>
 </html>

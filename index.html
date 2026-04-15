@@ -35,14 +35,14 @@
     .header p { font-size: 13px; color: var(--text-secondary); margin-top: 1px; }
     .card { background: var(--gray-card); border: 0.5px solid var(--gray-border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
     .section-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
-    .lot-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
-    .lot-box { flex: 1; background: var(--blue-light); border-radius: var(--radius); padding: 8px 12px; }
-    .lot-box-label { font-size: 10px; color: var(--blue-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-    .lot-box-value { font-size: 14px; font-weight: 600; color: var(--blue-text); margin-top: 2px; }
-    .date-box { background: var(--gray-bg); border-radius: var(--radius); padding: 8px 12px; }
-    .date-box-label { font-size: 10px; color: var(--text-hint); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-    .date-box-value { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
-    .regen-btn { padding: 0 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: transparent; cursor: pointer; font-size: 18px; color: var(--text-secondary); display: flex; align-items: center; }
+    .lot-big { background: var(--blue-light); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; text-align: center; }
+    .lot-big-label { font-size: 11px; color: var(--blue-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .lot-big-value { font-size: 28px; font-weight: 700; color: var(--blue-text); letter-spacing: 0.04em; font-family: monospace; }
+    .lot-big-detail { font-size: 11px; color: var(--blue-text); margin-top: 4px; opacity: 0.8; }
+    .info-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .info-box-small { flex: 1; background: var(--gray-bg); border-radius: var(--radius); padding: 8px 12px; }
+    .info-box-small-label { font-size: 10px; color: var(--text-hint); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-box-small-value { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
     select { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--gray-bg); color: var(--text-primary); font-size: 15px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; margin-bottom: 10px; }
     .folder-preview { background: var(--gray-bg); border-radius: var(--radius); padding: 8px 12px; font-size: 12px; font-family: monospace; color: var(--text-secondary); word-break: break-all; }
     textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--gray-border2); background: var(--gray-bg); color: var(--text-primary); font-size: 14px; resize: none; font-family: inherit; margin-top: 10px; }
@@ -61,10 +61,10 @@
     .send-btn { width: 100%; padding: 16px; border-radius: var(--radius-lg); border: none; background: var(--blue); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; font-family: inherit; }
     .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .send-btn.success { background: var(--green); }
-    .info-box { background: var(--blue-light); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--blue-text); margin-bottom: 12px; line-height: 1.5; }
     .progress-bar { height: 4px; border-radius: 2px; background: var(--gray-border); overflow: hidden; margin-top: 10px; }
     .progress-fill { height: 100%; border-radius: 2px; background: var(--blue); transition: width 0.3s; }
     .log { font-size: 12px; color: var(--text-secondary); margin-top: 7px; min-height: 16px; line-height: 1.4; }
+    .warning { background: #faeeda; border-radius: var(--radius); padding: 8px 12px; font-size: 12px; color: #633806; margin-top: 8px; display: none; }
   </style>
 </head>
 <body>
@@ -79,44 +79,51 @@
     </div>
     <div>
       <h1>Réception livraison</h1>
-      <p>Crée un dossier ZIP à envoyer sur OneDrive</p>
+      <p>ZIP automatique → OneDrive</p>
     </div>
-  </div>
-
-  <div class="info-box">
-    📦 L'appli crée un fichier ZIP avec toutes les photos + infos de livraison. Tu le glisses ensuite dans ton OneDrive.
   </div>
 
   <div class="card">
-    <div class="section-label">Livraison</div>
-    <div class="lot-row">
-      <div class="lot-box">
-        <div class="lot-box-label">Numéro de lot</div>
-        <div class="lot-box-value" id="lotNum">LOT-2026-001</div>
-      </div>
-      <div class="date-box">
-        <div class="date-box-label">Date</div>
-        <div class="date-box-value" id="dateBadge">--</div>
-      </div>
-      <button class="regen-btn" onclick="regenLot()" title="Nouveau numéro">↻</button>
-    </div>
-
     <div class="section-label">Fournisseur</div>
     <select id="fournisseur" onchange="updateUI()">
-      <option value="">— Sélectionner —</option>
-      <option value="Pro a Pro">Pro à Pro</option>
-      <option value="Ganivaud">Ganivaud</option>
-      <option value="Camblong">Camblong</option>
-      <option value="Episaveur">Episaveur</option>
-      <option value="Sysco">Sysco</option>
-      <option value="Sobraques">Sobraques</option>
-      <option value="France Frais">France Frais</option>
+      <option value="">— Sélectionner le fournisseur —</option>
+      <option value="01|Sysco">01 — Sysco</option>
+      <option value="02|Metro">02 — Metro</option>
+      <option value="03|Compagnie des Desserts">03 — Compagnie des Desserts</option>
+      <option value="07|Sibio">07 — Sibio</option>
+      <option value="09|Dombrial">09 — Dombrial</option>
+      <option value="10|Igual">10 — Igual</option>
+      <option value="11|Pro a Pro">11 — Pro à Pro</option>
+      <option value="12|Camblong">12 — Camblong</option>
+      <option value="13|Episaveur">13 — Episaveur</option>
     </select>
 
-    <div class="section-label" style="margin-top:4px;">Nom du dossier ZIP</div>
-    <div class="folder-preview" id="folderPreview">2026-04-15 — LOT-2026-001.zip</div>
+    <div class="lot-big" id="lotBig">
+      <div class="lot-big-label">Numéro de lot généré</div>
+      <div class="lot-big-value" id="lotNum">--</div>
+      <div class="lot-big-detail" id="lotDetail">Sélectionne un fournisseur</div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-box-small">
+        <div class="info-box-small-label">Jour</div>
+        <div class="info-box-small-value" id="jourNum">--</div>
+      </div>
+      <div class="info-box-small">
+        <div class="info-box-small-label">Année</div>
+        <div class="info-box-small-value" id="anneeNum">--</div>
+      </div>
+      <div class="info-box-small">
+        <div class="info-box-small-label">Date</div>
+        <div class="info-box-small-value" id="dateBadge">--</div>
+      </div>
+    </div>
+
+    <div class="section-label">Fichier ZIP</div>
+    <div class="folder-preview" id="folderPreview">Sélectionne un fournisseur</div>
 
     <textarea id="notes" rows="2" placeholder="Notes : palette abîmée, colis manquant, température…"></textarea>
+    <div class="warning" id="warnFournisseur">⚠️ Sélectionne un fournisseur pour générer le numéro de lot</div>
   </div>
 
   <div class="card">
@@ -152,32 +159,83 @@
 </div>
 
 <script>
+  // Fournisseurs : code -> nom
+  const FOURNISSEURS = {
+    '01': 'Sysco', '02': 'Metro', '03': 'Compagnie des Desserts',
+    '07': 'Sibio', '09': 'Dombrial', '10': 'Igual',
+    '11': 'Pro a Pro', '12': 'Camblong', '13': 'Episaveur'
+  };
+
   let photos = [];
   let currentTag = 'BL';
-  let lotNumber = '';
+  let codeFournisseur = '';
+  let nomFournisseur = '';
 
   function pad(n) { return String(n).padStart(2,'0'); }
+
+  function getDayOfYear() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    return Math.floor(diff / oneDay);
+  }
+
   function getTodayStr() {
     const d = new Date();
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   }
-  function genLot() {
-    return `LOT-${new Date().getFullYear()}-${String(Math.floor(Math.random()*999)+1).padStart(3,'0')}`;
+
+  function getYear2() {
+    return String(new Date().getFullYear()).slice(-2);
   }
+
+  // Format lot : CODE_FOURNISSEUR + JOUR_ANNEE (ex: 01-105-26)
+  function genLotNumber(code) {
+    const jour = getDayOfYear();
+    const annee = getYear2();
+    return `${code}-${jour}-${annee}`;
+  }
+
   function updateUI() {
+    const val = document.getElementById('fournisseur').value;
     const today = getTodayStr();
+    const jour = getDayOfYear();
+    const annee = getYear2();
+
     document.getElementById('dateBadge').textContent = today;
-    document.getElementById('lotNum').textContent = lotNumber;
-    const f = document.getElementById('fournisseur').value;
-    const fStr = f ? ` — ${f}` : '';
-    document.getElementById('folderPreview').textContent = `${today} — ${lotNumber}${fStr}.zip`;
+    document.getElementById('jourNum').textContent = jour;
+    document.getElementById('anneeNum').textContent = '20' + annee;
+
+    if (!val) {
+      codeFournisseur = '';
+      nomFournisseur = '';
+      document.getElementById('lotNum').textContent = '--';
+      document.getElementById('lotDetail').textContent = 'Sélectionne un fournisseur';
+      document.getElementById('folderPreview').textContent = 'Sélectionne un fournisseur';
+      document.getElementById('warnFournisseur').style.display = 'block';
+      updateSendBtn();
+      return;
+    }
+
+    document.getElementById('warnFournisseur').style.display = 'none';
+    const parts = val.split('|');
+    codeFournisseur = parts[0];
+    nomFournisseur = parts[1];
+
+    const lot = genLotNumber(codeFournisseur);
+    document.getElementById('lotNum').textContent = lot;
+    document.getElementById('lotDetail').textContent = `Code ${codeFournisseur} · Jour ${jour} · Année ${annee}`;
+    document.getElementById('folderPreview').textContent = `${today} — ${lot} — ${nomFournisseur}.zip`;
+    updateSendBtn();
   }
-  function regenLot() { lotNumber = genLot(); updateUI(); }
+
   function selectTag(btn, tag) {
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     currentTag = tag;
   }
+
   function addPhotos(e) {
     Array.from(e.target.files).forEach(file => {
       const reader = new FileReader();
@@ -186,7 +244,9 @@
     });
     e.target.value = '';
   }
+
   function removePhoto(i) { photos.splice(i,1); renderPhotos(); }
+
   function renderPhotos() {
     const grid = document.getElementById('photoGrid');
     grid.innerHTML = '';
@@ -205,9 +265,11 @@
     document.getElementById('photoCounter').textContent = c === 0 ? '0 photo' : c === 1 ? '1 photo' : `${c} photos`;
     updateSendBtn();
   }
+
   function updateSendBtn() {
-    document.getElementById('sendBtn').disabled = photos.length === 0;
+    document.getElementById('sendBtn').disabled = photos.length === 0 || !codeFournisseur;
   }
+
   function setLog(msg) { document.getElementById('logMsg').textContent = msg; }
   function setProgress(pct) { document.getElementById('progressFill').style.width = pct+'%'; }
 
@@ -225,28 +287,28 @@
     setLog('Création du dossier...');
 
     const today = getTodayStr();
-    const f = document.getElementById('fournisseur').value;
-    const fStr = f ? ` — ${f}` : '';
-    const folderName = `${today} — ${lotNumber}${fStr}`;
+    const lot = genLotNumber(codeFournisseur);
+    const folderName = `${today} — ${lot} — ${nomFournisseur}`;
     const zipName = `${folderName}.zip`;
 
     const zip = new JSZip();
     const folder = zip.folder(folderName);
 
-    // Fichier infos
     const notes = document.getElementById('notes').value.trim();
     const infoTxt = [
-      `Date : ${today}`,
-      `Lot : ${lotNumber}`,
-      `Fournisseur : ${f || '-'}`,
-      `Nombre de photos : ${photos.length}`,
-      notes ? `Notes : ${notes}` : '',
+      `Date         : ${today}`,
+      `Numéro de lot: ${lot}`,
+      `Code         : ${codeFournisseur}`,
+      `Fournisseur  : ${nomFournisseur}`,
+      `Jour année   : ${getDayOfYear()}`,
+      `Année        : 20${getYear2()}`,
+      `Nb photos    : ${photos.length}`,
+      notes ? `Notes        : ${notes}` : '',
     ].filter(Boolean).join('\n');
     folder.file('infos.txt', infoTxt);
 
     setProgress(10);
 
-    // Ajoute les photos
     const tagCounts = {};
     for (let i=0; i<photos.length; i++) {
       const p = photos[i];
@@ -260,12 +322,11 @@
     }
 
     setProgress(90);
-    setLog('Génération du fichier ZIP...');
+    setLog('Génération ZIP...');
 
     const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
     setProgress(100);
 
-    // Téléchargement automatique
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -282,11 +343,13 @@
     setTimeout(() => {
       document.getElementById('sendBtn').classList.remove('success');
       document.getElementById('sendBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="white" stroke-width="2" stroke-linecap="round"/></svg> Télécharger le dossier ZIP';
-      photos = []; renderPhotos(); regenLot();
+      photos = []; renderPhotos();
+      document.getElementById('fournisseur').value = '';
+      updateUI();
     }, 4000);
   }
 
-  lotNumber = genLot();
+  // Init
   updateUI();
   renderPhotos();
 </script>
